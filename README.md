@@ -1,1 +1,238 @@
-# Tool-Download-
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Download Box</title>
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    font-family: 'Segoe UI', Khmer OS Battambang, sans-serif;
+    color: #f8fafc;
+  }
+
+  /* ប្រអប់កាតសំខាន់ */
+  .download-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .download-card h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #38bdf8;
+  }
+
+  /* កន្លែងបញ្ចូលលីង (Input Box) */
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .input-group label {
+    font-size: 14px;
+    color: #94a3b8;
+  }
+
+  .input-group input {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid #334155;
+    border-radius: 10px;
+    color: #38bdf8;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+
+  .input-group input:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+  }
+
+  /* របារបង្ហាញស្ថានភាពទាញយក (Progress Bar) */
+  .progress-container {
+    margin-bottom: 24px;
+  }
+
+  .status-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+
+  .progress-bar-bg {
+    width: 100%;
+    height: 8px;
+    background: #334155;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #38bdf8, #818cf8);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+  }
+
+  /* តំបន់ប៊ូតុងបញ្ជា */
+  .button-group {
+    display: flex;
+    gap: 12px;
+  }
+
+  .btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+
+  /* ប៊ូតុងទាញយក */
+  .btn-download {
+    background: #0284c7;
+    color: #ffffff;
+  }
+
+  .btn-download:hover {
+    background: #0369a1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
+  }
+
+  /* ប៊ូតុងឈប់ / ផ្អាក */
+  .btn-stop {
+    background: #ef4444;
+    color: #ffffff;
+  }
+
+  .btn-stop:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+  }
+
+  .btn:active {
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+  <div class="download-card">
+    <h2>ប្រព័ន្ធគ្រប់គ្រងការទាញយក</h2>
+
+    <!-- កន្លែងដាក់លីង (បានលុប URL គំរូចេញ) -->
+    <div class="input-group">
+      <label for="fileUrl">លីងឯកសារ (URL):</label>
+      <input type="text" id="fileUrl" value="" placeholder="បិទភ្ជាប់ Link នៅទីនេះ...">
+    </div>
+
+    <!-- របារបង្ហាញ Progress -->
+    <div class="progress-container">
+      <div class="status-text">
+        <span id="status">រង់ចាំការទាញយក...</span>
+        <span id="percent">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <!-- ប៊ូតុងទាំងពីរ -->
+    <div class="button-group">
+      <!-- ប៊ូតុងទាញយក -->
+      <button class="btn btn-download" onclick="startDownload()">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        ទាញយក
+      </button>
+
+      <!-- ប៊ូតុងឈប់ -->
+      <button class="btn btn-stop" onclick="stopDownload()">
+        <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+        ឈប់
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let downloadInterval;
+    let progress = 0;
+
+    function startDownload() {
+      const url = document.getElementById('fileUrl').value.trim();
+      if (!url) {
+        alert('សូមបញ្ចូល Link ជាមុនសិន!');
+        return;
+      }
+
+      // ប្រសិនបើកំពុងរត់ហើយ មិនឱ្យចុចជាន់គ្នាទេ
+      if (downloadInterval) clearInterval(downloadInterval);
+
+      document.getElementById('status').innerText = 'កំពុងទាញយក...';
+      document.getElementById('status').style.color = '#38bdf8';
+
+      // Simulate ការទាញយក
+      downloadInterval = setInterval(() => {
+        if (progress < 100) {
+          progress += 2;
+          document.getElementById('progressFill').style.width = progress + '%';
+          document.getElementById('percent').innerText = progress + '%';
+        } else {
+          clearInterval(downloadInterval);
+          document.getElementById('status').innerText = 'ទាញយកជោគជ័យ!';
+          document.getElementById('status').style.color = '#4ade80';
+        }
+      }, 100);
+    }
+
+    function stopDownload() {
+      if (downloadInterval) {
+        clearInterval(downloadInterval);
+        document.getElementById('status').innerText = 'បានផ្អាក/ឈប់!';
+        document.getElementById('status').style.color = '#ef4444';
+      }
+    }
+  </script>
+
+</body>
+</html>
+
